@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "news"
+version = "0.1.0"
+description = ""
+authors = ["Franco Lianza <lianza.fl@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+prefect = "^2.16.2"
+dbt-postgres = "^1.7.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
