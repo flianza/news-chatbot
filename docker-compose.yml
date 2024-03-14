@@ -16,5 +16,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    volumes:
+      - index_data:/chroma/.chroma/index
+    environment:
+      - ALLOW_RESET=True
+    ports:
+      - 8500:8000
 volumes:
   postgres_data:
+  index_data:

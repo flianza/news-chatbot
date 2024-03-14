@@ -9,6 +9,14 @@ readme = "README.md"
 python = "^3.11"
 prefect = "^2.16.2"
 dbt-postgres = "^1.7.9"
+prefect-airbyte = "^0.3.2"
+prefect-dbt = "^0.4.1"
+chromadb = "^0.4.24"
+langchain = "^0.1.11"
+black = "^24.2.0"
+psycopg2-binary = "^2.9.9"
+jupyter = "^1.0.0"
+langchainhub = "^0.1.15"
 
 
 [build-system]
