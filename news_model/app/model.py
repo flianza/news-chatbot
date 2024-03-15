@@ -1,7 +1,7 @@
-import os
 from typing import Sequence
 
 import chromadb
+from app.config import CHAT_MODEL, CHROMA_DB_COLLECTION, CHROMA_DB_PORT, CHROMA_DB_SERVER, EMBEDDINGS_MODEL, OLLAMA_URL
 from chromadb.config import Settings
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain_community.chat_models import ChatOllama
@@ -12,18 +12,25 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 
 chroma_client = chromadb.HttpClient(
-    host=os.environ["CHROMA_DB_SERVER"],
-    port=int(os.environ["CHROMA_DB_PORT"]),
+    host=CHROMA_DB_SERVER,
+    port=CHROMA_DB_PORT,
     settings=Settings(allow_reset=True, anonymized_telemetry=False),
 )
 
 db = Chroma(
     client=chroma_client,
     embedding_function=OllamaEmbeddings(
-        base_url=os.environ["OLLAMA_URL"],
-        model=os.environ["EMBEDDINGS_MODEL"],
+        base_url=OLLAMA_URL,
+        model=EMBEDDINGS_MODEL,
     ),
-    collection_name=os.environ["CHROMA_DB_COLLECTION"],
+    collection_name=CHROMA_DB_COLLECTION,
+)
+
+llm = ChatOllama(
+    base_url=OLLAMA_URL,
+    model=CHAT_MODEL,
+    temperature=0,
+    streaming=True,
 )
 
 
@@ -49,7 +56,7 @@ def buscar_noticias(query: dict) -> Sequence[str]:
     return "\t- Sin noticias relevantes"
 
 
-def _crear_chain_tematica(model):
+def _crear_chain_tematica(llm):
     template_tematica = """A partir de la pregunta del usuario, debes extraer la temática a la cual se refiere. Lo que importa es el sujeto, no adjetivos, fechas, etc.
 Por ejemplo:
     - "qué pasó en Rio de Janeiro ayer?", la temática es "Rio de Janeiro"
@@ -64,7 +71,7 @@ Solo debes responder el nombre de la temática ignorando el resto de la pregunta
     chain_tematica = (
         RunnableParallel({"input": RunnablePassthrough()})
         | prompt_tematica
-        | model
+        | llm
         | StrOutputParser()
         | (lambda x: x.strip())
     )
@@ -73,7 +80,7 @@ Solo debes responder el nombre de la temática ignorando el resto de la pregunta
     return chain_tematica
 
 
-def _crear_chain_fecha(model):
+def _crear_chain_fecha(llm):
     template_fecha = """A partir de la pregunta del usuario, debes extraer una fecha a la cual hace referencia.
 Por ejemplo:
     - "qué vas a hacer mañana?", la fecha es "mañana"
@@ -91,7 +98,7 @@ Solo debes responder la fecha que detectes:
     chain_fecha = (
         RunnableParallel({"input": RunnablePassthrough()})
         | prompt_fecha
-        | model
+        | llm
         | StrOutputParser()
         | (lambda x: x.strip())
     )
@@ -110,7 +117,6 @@ def _crear_chain_noticias(chain_tematica, chain_fecha):
         )
         | buscar_noticias
     )
-
     chain_noticias.name = "Noticias"
     return chain_noticias
 
@@ -120,15 +126,8 @@ class InputSchema(BaseModel):
 
 
 def crear_chain():
-    model = ChatOllama(
-        base_url=os.environ["OLLAMA_URL"],
-        model=os.environ["CHAT_MODEL"],
-        temperature=0,
-        streaming=True,
-    )
-
-    chain_tematica = _crear_chain_tematica(model)
-    chain_fecha = _crear_chain_fecha(model)
+    chain_tematica = _crear_chain_tematica(llm)
+    chain_fecha = _crear_chain_fecha(llm)
     chain_noticias = _crear_chain_noticias(chain_tematica, chain_fecha)
 
     template = """A partir de la pregunta del usuario y las noticias que hablan de la temática del usuario elabora una respuesta a la pregunta.
@@ -148,7 +147,7 @@ Noticias de la temática:
             }
         )
         | prompt
-        | model
+        | llm
         | StrOutputParser()
     )
 
