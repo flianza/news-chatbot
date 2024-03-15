@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "news"
+name = "news-model"
 version = "0.1.0"
 description = ""
 authors = ["Franco Lianza <lianza.fl@gmail.com>"]
@@ -7,18 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-prefect = "^2.16.2"
-dbt-postgres = "^1.7.9"
-prefect-airbyte = "^0.3.2"
-prefect-dbt = "^0.4.1"
-chromadb = "^0.4.24"
-langchain = "^0.1.11"
-black = "^24.2.0"
-psycopg2-binary = "^2.9.9"
-jupyter = "^1.0.0"
-langchainhub = "^0.1.15"
-langserve = {extras = ["server"], version = "^0.0.51"}
 pydantic = "<2"
+langchain = "^0.1.12"
+chromadb = "^0.4.24"
+langserve = {extras = ["server"], version = "^0.0.51"}
 
 
 [build-system]
