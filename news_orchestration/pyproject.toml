@@ -13,6 +13,7 @@ chromadb = "^0.4.24"
 prefect = "^2.16.3"
 sqlalchemy = "^2.0.28"
 prefect-dbt = "^0.4.1"
+dbt-postgres = "^1.7.10"
 
 
 [build-system]

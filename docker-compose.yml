@@ -32,6 +32,13 @@ services:
       - chroma
     ports:
       - 80:80
+  prefect-worker:
+    build:
+      context: ./news_orchestration
+    command: ["python", "flows/transform_news.py"]
+    env_file: .env
+    depends_on:
+      - chroma
 volumes:
   postgres_data:
   index_data:

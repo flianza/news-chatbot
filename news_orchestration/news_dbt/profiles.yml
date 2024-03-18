@@ -1,0 +1,12 @@
+news_dbt:
+  outputs:
+    dev:
+      dbname: news
+      host: db
+      pass: news
+      port: 5432
+      schema: public
+      threads: 1
+      type: postgres
+      user: news
+  target: dev

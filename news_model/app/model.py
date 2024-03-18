@@ -11,21 +11,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 
-chroma_client = chromadb.HttpClient(
-    host=CHROMA_DB_SERVER,
-    port=CHROMA_DB_PORT,
-    settings=Settings(allow_reset=True, anonymized_telemetry=False),
-)
-
-db = Chroma(
-    client=chroma_client,
-    embedding_function=OllamaEmbeddings(
-        base_url=OLLAMA_URL,
-        model=EMBEDDINGS_MODEL,
-    ),
-    collection_name=CHROMA_DB_COLLECTION,
-)
-
 llm = ChatOllama(
     base_url=OLLAMA_URL,
     model=CHAT_MODEL,
@@ -37,6 +22,21 @@ llm = ChatOllama(
 def buscar_noticias(query: dict) -> Sequence[str]:
     import datetime as dt
     import time
+
+    chroma_client = chromadb.HttpClient(
+        host=CHROMA_DB_SERVER,
+        port=CHROMA_DB_PORT,
+        settings=Settings(allow_reset=True, anonymized_telemetry=False),
+    )
+
+    db = Chroma(
+        client=chroma_client,
+        embedding_function=OllamaEmbeddings(
+            base_url=OLLAMA_URL,
+            model=EMBEDDINGS_MODEL,
+        ),
+        collection_name=CHROMA_DB_COLLECTION,
+    )
 
     fecha = query["fecha"].lower()
     if fecha == "ayer":
